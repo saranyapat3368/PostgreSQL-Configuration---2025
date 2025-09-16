@@ -222,6 +222,8 @@ SHOW data_directory;
 ```
 1. ตำแหน่งที่อยู่ของไฟล์ configuration อยู่ที่ตำแหน่งใด
 2. ตำแหน่งที่อยู่ของไฟล์ data อยู่ที่ตำแหน่งใด
+![](https://github.com/user-attachments/assets/26a5ba08-4d30-48c5-9370-ba7a586facaf)
+
 ```
 -- ตรวจสอบการตั้งค่าปัจจุบัน
 SELECT name, setting, unit, category, short_desc 
@@ -235,6 +237,8 @@ WHERE name IN (
 ```
 บันทึกรูปผลของ configuration ทั้ง 6 ค่า 
 ```
+![](https://github.com/user-attachments/assets/5659fd3d-b6ba-4d6a-83b2-a0ae772b24ae)
+
 
 ### Step 2: การปรับแต่งพารามิเตอร์แบบค่อยเป็นค่อยไป
 
