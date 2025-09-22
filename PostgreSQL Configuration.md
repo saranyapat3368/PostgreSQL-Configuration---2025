@@ -252,8 +252,15 @@ WHERE name = 'shared_buffers';
 ### ผลการทดลอง
 ```
 1.รูปผลการรันคำสั่ง
+![](https://github.com/user-attachments/assets/58c82add-a0fb-4e3f-9689-1823349734d0)
+
 2. ค่า  shared_buffers มีการกำหนดค่าไว้เท่าไหร่ (ใช้ setting X unit)
+- setting = 16384  unit = 8KB  
+= 131072KB    = 128MB
+
 3. ค่า  pending_restart ในผลการทดลองมีค่าเป็นอย่างไร และมีความหมายอย่างไร
+- f ความหมาย คือ ค่า 128MB ของ shared_buffers ใช้งานได้ทันที โดยไม่ต้อง restart.
+  
 ```
 -- คำนวณและตั้งค่าใหม่
 -- สำหรับระบบ 2GB: 512MB (25%)
@@ -275,6 +282,9 @@ docker exec -it -u postgres postgres-config pg_ctl restart -D /var/lib/postgresq
 รูปหลังจาก restart postgres
 
 ```
+![](https://github.com/user-attachments/assets/d201b53b-2276-4e92-b85c-8a2f27a8d793)
+
+
 
 #### 2.2 ปรับแต่ง Work Memory (ไม่ต้อง restart)
 ```sql
@@ -298,6 +308,8 @@ WHERE name = 'work_mem';
 ```
 รูปผลการเปลี่ยนแปลงค่า work_mem
 ```
+![](https://github.com/user-attachments/assets/4c4f67c5-fd6f-4797-b828-e5d91bb6917b)
+
 
 #### 3.3 ปรับแต่ง Maintenance Work Memory
 ```sql
@@ -315,6 +327,8 @@ SHOW maintenance_work_mem;
 ```
 รูปผลการเปลี่ยนแปลงค่า maintenance_work_mem
 ```
+![](https://github.com/user-attachments/assets/b431b52f-0dbb-4d38-9453-d832b19444d6)
+
 
 #### 3.4 ปรับแต่ง WAL Buffers
 ```sql
@@ -340,6 +354,8 @@ SHOW wal_buffers;
 ```
 รูปผลการเปลี่ยนแปลงค่า wal_buffers
 ```
+![](https://github.com/user-attachments/assets/eb20cd73-d088-4441-ae4e-4c7d7c270469)
+
 
 #### 3.5 ปรับแต่ง Effective Cache Size
 ```sql
@@ -357,6 +373,8 @@ SHOW effective_cache_size;
 ```
 รูปผลการเปลี่ยนแปลงค่า effective_cache_size
 ```
+![](https://github.com/user-attachments/assets/3d1d65a5-92bb-4cca-8aec-049dee0e0ad4)
+
 
 ### Step 4: ตรวจสอบผล
 
