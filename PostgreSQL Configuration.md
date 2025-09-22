@@ -404,6 +404,8 @@ ORDER BY name;
 ```
 รูปผลการลัพธ์การตั้งค่า
 ```
+![](https://github.com/user-attachments/assets/b0bd3472-5b0f-40f7-a9eb-4b58dcddd36c)
+
 
 ### Step 5: การสร้างและทดสอบ Workload
 
@@ -428,6 +430,8 @@ CREATE TABLE large_table (
 CREATE INDEX idx_large_table_number ON large_table(number);
 CREATE INDEX idx_large_table_created_at ON large_table(created_at);
 ```
+![](https://github.com/user-attachments/assets/0af78487-0392-414b-a955-d6ef7d4bacaa)
+
 
 #### 5.2 การทดสอบ Work Memory
 ```sql
@@ -446,6 +450,8 @@ LIMIT 1000;
 ```
 ### ผลการทดลอง
 ```
+![](https://github.com/user-attachments/assets/7aa96892-2261-4d18-b5b9-688a2b0a2c5c)
+
 1. คำสั่ง EXPLAIN(ANALYZE,BUFFERS) คืออะไร 
 2. รูปผลการรัน
 3. อธิบายผลลัพธ์ที่ได้
