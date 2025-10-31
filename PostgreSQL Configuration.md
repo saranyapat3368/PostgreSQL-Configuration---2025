@@ -452,10 +452,14 @@ LIMIT 1000;
 ```
 ![](https://github.com/user-attachments/assets/7aa96892-2261-4d18-b5b9-688a2b0a2c5c)
 
-1. คำสั่ง EXPLAIN(ANALYZE,BUFFERS) คืออะไร 
+1. คำสั่ง EXPLAIN(ANALYZE,BUFFERS) คืออะไร -คือคำสั่งที่ใช้ ดูแผนการทำงานของคำสั่ง SQL จริง ๆ พร้อมเวลาและการใช้หน่วยความจำ
 2. รูปผลการรัน
-3. อธิบายผลลัพธ์ที่ได้
+3. อธิบายผลลัพธ์ที่ได้ - ช่วยให้เห็นว่า query ใช้เวลาเท่าไหร่ และทำงานแบบไหน เพื่อปรับประสิทธิภาพฐานข้อมูลได้ง่ายขึ้น.
 ```
+![](https://github.com/user-attachments/assets/e4827cea-78f4-45c0-bc2a-5cb3924fa684)
+![](https://github.com/user-attachments/assets/778ae489-9e31-41e7-a0ed-8e8b759dc47d)
+
+
 ```sql
 -- ทดสอบ Hash operation
 EXPLAIN (ANALYZE, BUFFERS)
@@ -469,9 +473,12 @@ LIMIT 100;
 ### ผลการทดลอง
 ```
 1. รูปผลการรัน
-2. อธิบายผลลัพธ์ที่ได้ 
-3. การสแกนเป็นแบบใด เกิดจากเหตุผลใด
+2. อธิบายผลลัพธ์ที่ได้ - PostgreSQL ใช้ดัชนีในการประมวลผลกลุ่มข้อมูล ทำให้รันได้เร็วและใช้ทรัพยากรน้อย
+3. การสแกนเป็นแบบใด เกิดจากเหตุผลใด - Index Only Scan เพราะมีการสร้างดัชนีไว้แล้ว (CREATE INDEX idx_large_table_number) ทำให้ระบบอ่านข้อมูลจาก index โดยไม่ต้องอ่านทุกแถวในตาราง
 ```
+![](https://github.com/user-attachments/assets/6cf58fdb-2618-4584-9e8b-01e7f43ceef0)
+
+
 #### 5.3 การทดสอบ Maintenance Work Memory
 ```sql
 -- ทดสอบ CREATE INDEX (จะใช้ maintenance_work_mem)
@@ -488,8 +495,13 @@ VACUUM (ANALYZE, VERBOSE) large_table;
 ### ผลการทดลอง
 ```
 1. รูปผลการทดลอง จากคำสั่ง VACUUM (ANALYZE, VERBOSE) large_table;
-2. อธิบายผลลัพธ์ที่ได้
+2. อธิบายผลลัพธ์ที่ได้ - ทั้งสองคำสั่งใช้ค่า maintenance_work_mem ในการจัดการหน่วยความจำให้เพียงพอต่อการจัดเรียงและวิเคราะห์ข้อมูล
 ```
+![](https://github.com/user-attachments/assets/73421826-02d4-495e-b938-297a8536bfe6)
+
+![](https://github.com/user-attachments/assets/f504d958-fb2a-406d-92b2-66bba19b31ed)
+
+
 ### Step 6: การติดตาม Memory Usage
 
 #### 6.1 สร้างฟังก์ชันติดตาม Memory
@@ -533,6 +545,10 @@ FROM get_memory_usage();
 ```
 รูปผลการทดลอง
 ```
+![](https://github.com/user-attachments/assets/f17b04fa-555d-4336-8b91-d4a6d4607e35)
+![](https://github.com/user-attachments/assets/95fe3f2e-6b32-43f0-8f98-03b20a629785)
+
+
 
 #### 6.2 การติดตาม Buffer Hit Ratio
 ```sql
@@ -553,8 +569,9 @@ ORDER BY heap_blks_read + heap_blks_hit DESC;
 ### ผลการทดลอง
 ```
 1. รูปผลการทดลอง
-2. อธิบายผลลัพธ์ที่ได้
+2. อธิบายผลลัพธ์ที่ได้ - ค่า Buffer Hit Ratio = 100% หมายความว่า PostgreSQL ทำงานได้เต็มประสิทธิภาพ เพราะข้อมูลทั้งหมดถูกเก็บอยู่ในหน่วยความจำ (RAM)
 ```
+
 #### 6.3 ดู Buffer Hit Ratio ทั้งระบบ
 ```sql
 SELECT datname,
@@ -567,8 +584,10 @@ WHERE datname = current_database();
 ### ผลการทดลอง
 ```
 1. รูปผลการทดลอง
-2. อธิบายผลลัพธ์ที่ได้
+2. อธิบายผลลัพธ์ที่ได้ - ค่า Buffer Hit Ratio = 99.91% แสดงว่า PostgreSQL ใช้หน่วยความจำได้มีประสิทธิภาพสูงมาก
 ```
+![](https://github.com/user-attachments/assets/2c400cee-ed52-482f-aab2-2c799241d517)
+
 
 #### 6.4 ดู Table ที่มี Disk I/O มาก
 ```sql
@@ -588,8 +607,10 @@ LIMIT 10;
 ### ผลการทดลอง
 ```
 1. รูปผลการทดลอง
-2. อธิบายผลลัพธ์ที่ได้
+2. อธิบายผลลัพธ์ที่ได้ - ไม่มีตารางที่มี Disk I/O เกิดขึ้น → แปลว่าระบบใช้หน่วยความจำ (Cache) ได้เต็มประสิทธิภาพ 100%
 ```
+![](https://github.com/user-attachments/assets/f6f4fdf4-49ae-4994-a05e-31b7edde801f)
+
 ### Step 7: การปรับแต่ง Autovacuum
 
 #### 7.1 ทำความเข้าใจ Autovacuum Parameters
@@ -604,7 +625,18 @@ ORDER BY name;
 ```
 1. รูปผลการทดลอง
 2. อธิบายค่าต่าง ๆ ที่มีความสำคัญ
+autovacuum	เปิด/ปิดระบบทำความสะอาดอัตโนมัติ (ควรเป็น on)
+autovacuum_naptime	ระยะเวลาพักระหว่างรอบการทำงาน (หน่วยวินาที)
+autovacuum_max_workers	จำนวน process ที่ทำงานพร้อมกันได้สูงสุด
+autovacuum_vacuum_threshold	จำนวน record ขั้นต่ำก่อนเริ่ม vacuum
+autovacuum_vacuum_scale_factor	สัดส่วนของข้อมูลที่เปลี่ยนแปลงจนต้อง vacuum
+autovacuum_analyze_threshold	จำนวน record ขั้นต่ำก่อนเริ่ม analyze
+autovacuum_analyze_scale_factor	สัดส่วนของข้อมูลที่เปลี่ยนแปลงจนต้อง analyze
+autovacuum_work_mem	หน่วยความจำสูงสุดที่ใช้ต่อ 1 worker
+autovacuum_vacuum_cost_delay	เวลาหน่วงระหว่างแต่ละรอบ vacuum (หน่วย ms)
+log_autovacuum_min_duration	ระยะเวลา (ms) ที่จะเริ่มบันทึก log ของ autovacuum
 ```
+![](https://github.com/user-attachments/assets/fbb5ef38-606d-49cb-8a5e-c462574290ea)
 
 #### 7.2 การปรับแต่ง Autovacuum สำหรับประสิทธิภาพ
 ```sql
@@ -631,9 +663,8 @@ ALTER SYSTEM SET autovacuum_work_mem = '512MB';
 SELECT pg_reload_conf();
 ```
 ### ผลการทดลอง
-```
-รูปผลการทดลองการปรับแต่ง Autovacuum (Capture รวมทั้งหมด 1 รูป)
-```
+![](https://github.com/user-attachments/assets/2b81056f-7ad4-4600-aeb2-e75933eddaae)
+
 
 ### Step 8: Performance Testing และ Benchmarking
 
@@ -689,6 +720,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 ```
+![](https://github.com/user-attachments/assets/0d69d37b-b296-4a3a-8397-5c52b5b7c3ca)
+
 
 #### 8.2 การทดสอบก่อนและหลังการปรับแต่ง
 ```sql
@@ -708,8 +741,12 @@ ORDER BY test_timestamp DESC;
 ### ผลการทดลอง
 ```
 1. รูปผลการทดลอง
-2. อธิบายผลลัพธ์ที่ได้
+2. อธิบายผลลัพธ์ที่ได้ - ระบบสามารถรันฟังก์ชันทดสอบได้ถูกต้อง
+การทดสอบ aggregation และ large_sort ใช้เวลาทำงานเพียง 1–4 มิลลิวินาที
 ```
+![](https://github.com/user-attachments/assets/5cb4b278-d28d-4a56-9923-42f157ec508e)
+![](https://github.com/user-attachments/assets/86454c71-23ce-4e6e-98c7-cc50b194715f)
+
 
 
 ### Step 9: การ Monitoring และ Alerting
@@ -743,9 +780,8 @@ FROM pg_settings WHERE name = 'maintenance_work_mem';
 SELECT * FROM memory_monitor;
 ```
 ### ผลการทดลอง
-```
-รูปผลการทดลอง
-```
+![](https://github.com/user-attachments/assets/02435551-65a2-4241-87a7-00e7cd28cdeb)
+
 
 ### Step 10: การจำลอง Load Testing
 
@@ -792,9 +828,8 @@ CREATE INDEX idx_orders_product_id ON load_test_orders(product_id);
 CREATE INDEX idx_orders_date ON load_test_orders(order_date);
 ```
 ### ผลการทดลอง
-```
-รูปผลการทดลอง การสร้าง FUNCTION และ INDEX
-```
+![](https://github.com/user-attachments/assets/3e8ce406-43a7-47cf-afcd-d30e4ff02b39)
+
 
 #### 10.2 การทดสอบ Query Performance
 ```sql
@@ -969,15 +1004,16 @@ SELECT * FROM simulate_oltp_workload(25);
 
 ```
 ### ผลการทดลอง
-```
-รูปผลการทดลอง
-```
+![](https://github.com/user-attachments/assets/37bdb1e3-7e9d-4486-a043-8033c1e66faa)
+
 -- ทดสอบปานกลาง  
 SELECT * FROM simulate_oltp_workload(100);
 ### ผลการทดลอง
+![](https://github.com/user-attachments/assets/ab63e984-584f-4275-b65b-3e10c0bc487a)
+
 ```
 1. รูปผลการทดลอง
-2. อธิบายผลการทดลอง การ SELECT , INSERT, UPDATE, DELETE เป็นอย่างไร 
+2. อธิบายผลการทดลอง การ SELECT , INSERT, UPDATE, DELETE เป็นอย่างไร - PostgreSQL ทำงานอ่าน–เขียนได้ดีในภาระงานเบา แต่เมื่อมีการอัปเดตข้อมูลจำนวนมาก (UPDATE / DELETE) ประสิทธิภาพจะลดลงตามปริมาณ I/O และการล็อกข้อมูลในตาราง
 ```
 
 -- ทดสอบหนักขึ้น เครื่องใครไม่ไหวผ่านก่อน หรือเปลี่ยนค่า 500 เป็น 200 :)
@@ -985,7 +1021,8 @@ SELECT * FROM simulate_oltp_workload(500);
 ### ผลการทดลอง
 ```
 รูปผลการทดลอง
-```
+![](https://github.com/user-attachments/assets/63482bcd-30d8-4c5b-95fd-529e990572a2)
+
 
 ### Step 11: การเปรียบเทียบประสิทธิภาพ
 
@@ -1178,9 +1215,8 @@ $$ LANGUAGE plpgsql;
 SELECT * FROM run_benchmark_suite();
 ```
 ### ผลการทดลอง
-```
-รูปผลการทดลอง
-```
+![](https://github.com/user-attachments/assets/a193f3b1-bfa6-40b5-acb2-64c14016d20b)
+
 
 -- ดูผลการทดสอบ
 SELECT 
@@ -1197,7 +1233,10 @@ ORDER BY test_timestamp DESC;
 ### ผลการทดลอง
 ```
 รูปผลการทดลอง
+![](https://github.com/user-attachments/assets/acf781cd-9f8c-4c5d-b9f7-f152bab73baa)
+
 ```
+
 
 ### Step 12: การจัดการ Configuration แบบ Advanced
 
@@ -1463,7 +1502,7 @@ SELECT auto_tune_memory();
 ```
 ### ผลการทดลอง
 ```
-รูปผลการทดลอง
+![](https://github.com/user-attachments/assets/7c86d1d7-b7d5-45e6-b98a-a6396dd6ae38)
 ```
 ```sql
 -- ดูการเปลี่ยนแปลง buffer hit ratio
@@ -1477,9 +1516,9 @@ WHERE heap_blks_read + heap_blks_hit > 0
 ORDER BY hit_ratio;
 ```
 ### ผลการทดลอง
-```
-รูปผลการทดลอง
-```
+
+![](https://github.com/user-attachments/assets/a900080b-88e8-4e3d-92a5-6f8f025e519a)
+
 
 ### การคำนวณ Memory Requirements
 
@@ -1510,10 +1549,27 @@ Estimated Usage = 2GB + (32MB × 100 × 0.5) + 512MB + 64MB
 
 
 ## คำถามท้ายการทดลอง
-1. หน่วยความจำใดบ้างที่เป็น shared memory และมีหลักในการตั้งค่าอย่างไร
-2. Work memory และ maintenance work memory คืออะไร มีหลักการในการกำหนดค่าอย่างไร
+1. หน่วยความจำใดบ้างที่เป็น shared memory และมีหลักในการตั้งค่าอย่างไร 
+- shared_buffers , wal_buffers , temp_buffers 
+หลักในการตั้งค่า - ควรกำหนดไม่เกิน 25% ของ RAM ทั้งหมด ถ้า RAM = 16GB → shared_buffers ≈ 4GB , wal_buffers ใช้ขนาดเล็กได้ เช่น 16MB–64MB
+2. Work memory และ maintenance work memory คืออะไร มีหลักการในการกำหนดค่าอย่างไร 
+- work_mem → หน่วยความจำที่ใช้ในการคำนวณแต่ละ query (เช่น ORDER BY, GROUP BY, JOIN)
+- maintenance_work_mem → ใช้ในงานดูแลฐานข้อมูล เช่น VACUUM, CREATE INDEX, ALTER TABLE
+หลักการตั้งค่า
+- work_mem = (RAM × 0.25) ÷ จำนวน connection
+- maintenance_work_mem ≈ 5–10% ของ RAM ทั้งหมด
 3. หากมี RAM 16GB และต้องการกำหนด connection = 200 ควรกำหนดค่า work memory และ maintenance work memory อย่างไร
+- shared_buffers ≈ 4GB
+work_mem = (16GB × 0.25) ÷ 200 ≈ 20MB ต่อ connection
+maintenance_work_mem ≈ 1GB
 4. ไฟล์ postgresql.conf และ postgresql.auto.conf  มีความสัมพันธ์กันอย่างไร
+- postgresql.auto.conf จะมีค่าที่ override ทับ postgresql.conf
+ระบบจะอ่าน postgresql.conf ก่อน แล้วค่อยอ่าน postgresql.auto.conf ภายหลัง
 5. Buffer hit ratio คืออะไร
+- Buffer Hit Ratio = สัดส่วนการอ่านข้อมูลจากหน่วยความจำ (cache) แทนที่จะอ่านจาก disk
 6. แสดงผลการคำนวณ การกำหนดค่าหน่วยความจำต่าง ๆ โดยอ้างอิงเครื่องของตนเอง
+- RAM 16 GB (ตั้งค่าให้รองรับ 200 connections)  shared_buffers 4 GB = 12 GB / work_mem 20 MB  maintenance_work_mem 1 GB
 7. การสแกนของฐานข้อมูล PostgreSQL มีกี่แบบอะไรบ้าง เปรียบเทียบการสแกนแต่ละแบบ
+- Sequential Scan อ่านทุกแถวในตาราง (Full Table Scan)
+- Index Scan อ่านเฉพาะข้อมูลที่ตรงตาม index
+- Bitmap Heap Scan ใช้ index รวมหลายเงื่อนไข แล้วค่อยอ่านจาก table
